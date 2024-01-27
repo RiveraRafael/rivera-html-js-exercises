@@ -1,0 +1,394 @@
+<head>
+	<style>
+		table {
+			border-collapse: collapse;
+		}
+		table, th, td {
+			border: none;
+		}
+		.Grass
+		{
+			background: #22DD22;
+		}
+		.Water
+		{
+			background: #2222DD;
+		}
+		.Road
+		{
+			background: #777777;
+		}
+		.Forest
+		{
+			background: #008800;
+		}
+		.Mountain
+		{
+			background: #77DD22;
+		}
+		.MapTile
+		{
+			position: relative;
+			padding: 20px 20px 20px 20px;
+			z-index: 1;
+			align-items: center;
+			justify-content: center;
+		}
+		.Unit {
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			z-index: 2;
+			
+		}
+	</style>
+</head>
+
+<body>
+	<div id="MapContainer"></div>
+	<script>
+		const inf_range = 3;
+		const map = [
+			[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+			[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+			[1,1,0,3,2,2,2,2,2,0,3,0,0,0,1,1],
+			[1,0,0,3,2,3,1,0,2,0,0,0,0,0,1,1],
+			[1,0,0,2,2,1,1,1,2,0,4,0,2,0,1,1],
+			[1,0,0,2,0,1,1,1,2,0,4,0,2,0,1,1],
+			[1,0,2,2,0,1,1,3,2,2,2,2,2,0,1,1],
+			[1,0,0,0,0,0,0,3,3,0,1,1,2,1,1,1],
+			[1,1,0,0,0,0,0,0,0,0,1,0,0,0,1,1],
+			[1,1,1,1,4,0,4,3,0,0,2,0,0,0,1,1],
+			[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+			[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+		];
+		var rangemap = [
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+		];
+		const rangemapreset = [
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+		];
+		
+		function AddPaths()
+		{
+			for (var x = 0; x < rangemap.length; x++)
+			{
+				for (var y = 0; y < rangemap[x].length; y++)
+				{
+					if (rangemap[x][y] == 1)
+					{
+						var div = document.getElementById("MapTile-" + x + "-" + y);
+						if (div !== null)
+						{
+							if (div.classList.contains('Grass'))
+							{
+								div.style.backgroundColor = '#99FF99';
+							}
+							else if (div.classList.contains('Water'))
+							{
+								div.style.backgroundColor = '#9999DD';
+							}
+							else if (div.classList.contains('Road'))
+							{
+							div.style.backgroundColor = '#DDDDDD';
+							}
+							else if (div.classList.contains('Forest'))
+							{
+							div.style.backgroundColor = '#66DD66';
+							}
+							else if (div.classList.contains('Mountain'))
+							{
+							div.style.backgroundColor = '#AAFF55';
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		function ARemovePaths()
+		{
+			for (var x = 0; x < rangemap.length; x++)
+			{
+				for (var y = 0; y < rangemap[x].length; y++)
+				{
+					var div = document.getElementById("MapTile-" + x + "-" + y);
+					if (div !== null)
+					{
+						if (div.classList.contains('Grass'))
+						{
+							div.style.backgroundColor = '#22DD22';
+						}
+						else if (div.classList.contains('Water'))
+						{
+							div.style.backgroundColor = '#2222DD';
+						}
+						else if (div.classList.contains('Road'))
+						{
+							div.style.backgroundColor = '#777777';
+						}
+						else if (div.classList.contains('Forest'))
+						{
+							div.style.backgroundColor = '#008800';
+						}
+						else if (div.classList.contains('Mountain'))
+						{
+							div.style.backgroundColor = '#77DD22';
+						}
+					}
+				}
+			}
+			console.log("sos");
+			console.log("rangemap:" + rangemap);
+			console.log("rangemapreset:" + rangemapreset);
+			var tempArray = new Array(rangemapreset.length);
+			for (var i = 0; i < rangemapreset.length; i++) {
+				tempArray[i] = new Array(rangemapreset[x].length);
+			}
+			
+			for (var x = 0; x < rangemapreset.length; x++)
+			{
+				for (var y = 0; y < rangemapreset[x].length; y++)
+				{
+					if (Array.isArray(rangemapreset[x][y])) {
+						tempArray[x][y] = [...rangemapreset[x][y]];
+					} else if (typeof rangemapreset[x][y] === 'object') {
+						tempArray[x][y] = { ...rangemapreset[x][y] };
+					} else {
+						tempArray[x][y] = rangemapreset[x][y];
+					}
+				}
+			}
+			rangemap = tempArray;
+			console.log("sos");
+		}
+		
+		function isIndexValid(array, index_x, index_y) {
+			return (index_x >= 0 && index_x < array.length) && (index_y >= 0 && index_y < array[0].length);
+		}
+		
+		function createTable() {
+			document.addEventListener('mouseup', function(event) {
+				console.log("S");
+				ARemovePaths();
+			});
+			var table = document.createElement('table');
+			table.id = "table-map";
+			
+			for (var i = 0; i < map.length; i++) {
+				var row = table.insertRow();
+				for (var j = 0; j < map[i].length; j++) {
+					var cell = row.insertCell();
+					var div = document.createElement('div');
+					div.id = "MapTile-" + i + "-" + j;
+					div.classList.add('MapTile');
+					if (map[i][j] == 0) {
+						div.classList.add('Grass');
+					}
+					else if (map[i][j] == 1) {
+						div.classList.add('Water');
+					}
+					else if (map[i][j] == 2) {
+						div.classList.add('Road');
+					}
+					else if (map[i][j] == 3) {
+						div.classList.add('Forest');
+					}
+					else if (map[i][j] == 4) {
+						div.classList.add('Mountain');
+					}
+					
+					if (div.id == 'MapTile-3-3')
+					{
+						var p = document.createElement('p');
+						p.textContent = 'I';
+						p.classList.add('Unit');
+						p.classList.add('Unit-Inf');
+						p.id = "MapTile-" + i + "-" + j + "-Unit"
+						div.appendChild(p);
+					}
+					
+					if (div.id == 'MapTile-5-4')
+					{
+						var p = document.createElement('p');
+						p.textContent = 'I';
+						p.classList.add('Unit');
+						p.classList.add('Unit-Inf');
+						p.id = "MapTile-" + i + "-" + j + "-Unit"
+						div.appendChild(p);
+					}
+					
+					div.addEventListener('mouseover', function() {
+						if (this.classList.contains('Grass'))
+						{
+							this.style.backgroundColor = '#99FF99';
+						}
+						else if (this.classList.contains('Water'))
+						{
+							this.style.backgroundColor = '#9999DD';
+						}
+						else if (this.classList.contains('Road'))
+						{
+							this.style.backgroundColor = '#DDDDDD';
+						}
+						else if (this.classList.contains('Forest'))
+						{
+							this.style.backgroundColor = '#66DD66';
+						}
+						else if (this.classList.contains('Mountain'))
+						{
+							this.style.backgroundColor = '#AAFF55';
+						}
+					});
+					div.addEventListener('mouseout', function() {
+						if (this.classList.contains('Grass'))
+						{
+							this.style.backgroundColor = '#22DD22';
+						}
+						else if (this.classList.contains('Water'))
+						{
+							this.style.backgroundColor = '#2222DD';
+						}
+						else if (this.classList.contains('Road'))
+						{
+							this.style.backgroundColor = '#777777';
+						}
+						else if (this.classList.contains('Forest'))
+						{
+							this.style.backgroundColor = '#008800';
+						}
+						else if (this.classList.contains('Mountain'))
+						{
+							this.style.backgroundColor = '#77DD22';
+						}
+					});
+					div.addEventListener('mouseup', function() {
+						ARemovePaths();
+					});
+					div.addEventListener('mousedown', function() {
+						var parentElement = this.parentElement;
+						console.log(rangemap);
+						var elementIndex = this.id.split("-");
+						var Index = [ parseInt(elementIndex[1]) , parseInt(elementIndex[2])];
+						console.log(this.id);
+						console.log(elementIndex);
+						console.log(Index);
+						console.log(parentElement.children);
+						var childElement = parentElement.querySelector('.' + 'Unit');
+						if (childElement !== null)
+						{
+							console.log(childElement.id);
+							if (childElement.classList.contains('Unit-Inf'))
+							{
+								console.log(rangemap);
+								console.log("B1");
+								var yy = 0;
+								for (var x = inf_range; x >= 0; x--)
+								{
+									yy = yy + 1;
+									for (var y = 0; y < yy; y++)
+									{
+										console.log((Index[0]+x) + "-" + (Index[1]+y));
+										if (isIndexValid(rangemap, Index[0]+x, Index[1]+y))
+										{
+											rangemap[Index[0]+x][Index[1]+y] = 1;
+										}
+									}
+								}
+								console.log(rangemap);
+								console.log("B2");
+								yy = 4;
+								for (var x = 0; x >= (inf_range - inf_range - inf_range); x--)
+								{
+									yy = yy - 1;
+									for (var y = yy; y >= 0; y--)
+									{
+										console.log((Index[0]+x) + "-" + (Index[1]+y));
+										if (isIndexValid(rangemap, Index[0]+x, Index[1]+y))
+										{
+											rangemap[Index[0]+x][Index[1]+y] = 1;
+										}
+									}
+								}
+								console.log(rangemap);
+								console.log("B3");
+								yy = 0;
+								for (var x = inf_range; x >= 0; x--)
+								{
+									yy = yy - 1;
+									for (var y = 0; y > yy; y--)
+									{
+										console.log((Index[0]+x) + "-" + (Index[1]+y));
+										if (isIndexValid(rangemap, Index[0]+x, Index[1]+y))
+										{
+											rangemap[Index[0]+x][Index[1]+y] = 1;
+										}
+									}
+								}
+								console.log("B4");
+								yy = -4;
+								for (var x = 0; x >= (inf_range - inf_range - inf_range); x--)
+								{
+									yy = yy + 1;
+									for (var y = yy; y <= 0; y++)
+									{
+										console.log((Index[0]+x) + "-" + (Index[1]+y));
+										if (isIndexValid(rangemap, Index[0]+x, Index[1]+y))
+										{
+											rangemap[Index[0]+x][Index[1]+y] = 1;
+										}
+									}
+								}
+								rangemap[Index[0]][Index[1]] = 2;
+								AddPaths();
+							}
+						}
+						else
+						{
+							console.log('A');
+						}
+					});
+					cell.appendChild(div);
+				}
+			}
+			
+			table.style.borderCollapse = 'collapse';
+			table.style.border = '2px solid black';
+	
+			// Append the table to the container in the HTML
+			var container = document.getElementById('MapContainer');
+			container.appendChild(table);
+		}
+		function RemovePaths()
+		{
+			
+		}
+		
+		window.onload = createTable;
+			
+	</script>
+</body>
